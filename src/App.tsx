@@ -1,15 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Router from "./Router";
 import GlobalStyle from "./GlobalStyle";
-import fbInstance, { auth } from "./fbInstance";
+import { auth } from "./fbInstance";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 function App() {
-  const [isLogin, setIsLogin] = useState(auth.currentUser);
+  const [init, setInit] = useState(false);
+  const [userObj, setUserObj] = useState<any>(null);
+
+  useEffect(() => {
+    // 로그인, 로그아웃 여부 확인
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserObj(user as any);
+      }
+      setInit(true);
+    });
+  }, []);
   return (
     <>
       <GlobalStyle />
-      <Router isLogin={isLogin} />
-      <footer>&copy; {new Date().getFullYear()} Twitter</footer>
+      {init ? <Router isLogin={Boolean(userObj)} userObj={userObj} /> : "Loading..."}
     </>
   );
 }
