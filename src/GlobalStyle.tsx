@@ -3,14 +3,32 @@ import reset from "styled-reset";
 
 const GlobalStyle = createGlobalStyle`
   ${reset}
-  body {
-    font-family:'Source Sans Pro', sans-serif;
-  }
-  * {
+  input {
+    all: unset;
     box-sizing: border-box;
+    appearance: none;
   }
+
+  body {
+    background-color: black;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+      "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    color: white;
+  }
+
+  button {
+    background-color: white;
+    color: black;
+  }
+
   a {
     text-decoration: none;
+    color: inherit;
+  }
+
+  form {
+    width: 100%;
   }
   /* other styles */
 `;
