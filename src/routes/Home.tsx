@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { dbService } from "../fbInstance";
-import { addDoc, collection, DocumentData, onSnapshot, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, DocumentData, onSnapshot, query, orderBy, addDoc, getDocs } from "firebase/firestore";
 import { User } from "firebase/auth";
+import Tweet from "../components/Tweet";
+import TweetForm from "../components/TweetForm";
 
 interface IProps {
   userObj: User;
 }
 
 const Home = ({ userObj }: IProps) => {
-  const [tweet, setTweet] = useState<string | number>("");
   const [tweets, setTweets] = useState<DocumentData[]>([]);
 
   // Tweets들 가져오기
@@ -24,7 +25,7 @@ const Home = ({ userObj }: IProps) => {
     });
   };
 
-  // snapshot를 이용해 실시간 데이터 가져오기
+  // snapshot를 이용해 실시간 데이터 가져오기 (실시간으로 데이터 확인)
   const q = query(collection(dbService, "tweet"), orderBy("createdAt", "desc"));
   const getTweets = onSnapshot(q, (querySnapshot) => {
     const tweetArr: DocumentData[] = querySnapshot.docs.map((doc) => ({
@@ -39,41 +40,15 @@ const Home = ({ userObj }: IProps) => {
     getTweets();
   }, []);
 
-  // Tweet저장하기
-  const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      const docRef = await addDoc(collection(dbService, "tweet"), {
-        text: tweet,
-        createdAt: Date.now(),
-        creatorId: userObj.uid,
-      });
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    } finally {
-      setTweet("");
-    }
-  };
-
-  const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value },
-    } = event;
-    setTweet(value);
-  };
-
   return (
     <div>
-      <form onSubmit={onSubmit}>
-        <input value={tweet} onChange={onChange} type="text" placeholder="What's on your mind?" maxLength={120} />
-        <input type="submit" value="Tweet" />
-      </form>
-      <div>
-        {tweets.map((tweet) => (
-          <div key={tweet.id}>
-            <h4>{tweet.text}</h4>
-          </div>
-        ))}
+      <div className="container">
+        <TweetForm userObj={userObj} />
+        <div style={{ marginTop: 30 }}>
+          {tweets.map((tweet) => (
+            <Tweet key={tweet.id} tweetObj={tweet} isOwner={tweet.creatorId === userObj?.uid} />
+          ))}
+        </div>
       </div>
     </div>
   );
